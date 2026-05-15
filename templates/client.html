@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>Client Dashboard</title>
+
+<link rel="stylesheet"
+href="{{ url_for('static', filename='dashboard.css') }}">
+
+</head>
+
+<body>
+
+<div class="sidebar">
+
+<h2>Client</h2>
+
+<a href="/client">Dashboard</a>
+<a href="/register_project">Register Project</a>
+<a href="#">Project Status</a>
+<a href="#">Meetings</a>
+<a href="#">Chat</a>
+<a href="#">Settings</a>
+
+</div>
+
+<div class="main">
+
+<h1>Client Dashboard</h1>
+
+<a href="/register_project" class="btn">
+Register New Project
+</a>
+
+{% for project in projects %}
+
+<div class="card">
+
+<h2>{{ project.name }}</h2>
+
+<p>{{ project.description }}</p>
+
+<p>Status: {{ project.status }}</p>
+
+<p>Assigned: {{ project.assigned }}</p>
+
+<button onclick="joinMeeting()">
+Join Meeting
+</button>
+
+</div>
+
+{% endfor %}
+
+</div>
+
+<script>
+
+function joinMeeting(){
+
+window.open("{{ meeting_link }}");
+}
+
+</script>
+
+</body>
+</html>

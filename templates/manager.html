@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>Advanced Manager Dashboard</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial;
+}
+
+body{
+    background:#0f172a;
+    color:white;
+    display:flex;
+    overflow-x:hidden;
+}
+
+/* SIDEBAR */
+
+.sidebar{
+    width:260px;
+    height:100vh;
+    background:linear-gradient(to bottom,#1e293b,#0f172a);
+    position:fixed;
+    padding:20px;
+    overflow:auto;
+    box-shadow:5px 0px 15px rgba(0,0,0,0.5);
+}
+
+.sidebar h2{
+    text-align:center;
+    color:#38bdf8;
+    margin-bottom:30px;
+}
+
+.sidebar a{
+    display:block;
+    text-decoration:none;
+    color:white;
+    padding:14px;
+    margin-top:12px;
+    border-radius:12px;
+    transition:0.3s;
+    background:#1e293b;
+}
+
+.sidebar a:hover{
+    background:#2563eb;
+    transform:translateX(5px);
+}
+
+/* MAIN */
+
+.main{
+    margin-left:280px;
+    width:100%;
+    padding:30px;
+}
+
+/* TOPBAR */
+
+.topbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:25px;
+}
+
+.profile{
+    display:flex;
+    align-items:center;
+    gap:15px;
+}
+
+.profile img{
+    width:50px;
+    height:50px;
+    border-radius:50%;
+}
+
+/* LOGOUT BUTTON */
+
+.logout-btn{
+    background:linear-gradient(to right,#ef4444,#dc2626);
+    border:none;
+    color:white;
+    padding:10px 18px;
+    border-radius:10px;
+    cursor:pointer;
+    transition:0.3s;
+}
+
+.logout-btn:hover{
+    transform:scale(1.05);
+}
+
+/* DASHBOARD CARDS */
+
+.cards{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+    gap:20px;
+}
+
+.card{
+    background:#1e293b;
+    padding:25px;
+    border-radius:20px;
+    box-shadow:0px 0px 10px rgba(0,0,0,0.5);
+    transition:0.3s;
+    animation:fade 1s;
+}
+
+.card:hover{
+    transform:translateY(-5px);
+}
+
+.stats-card{
+    text-align:center;
+    background:linear-gradient(to right,#1e293b,#334155);
+}
+
+.stats-card h1{
+    font-size:42px;
+    margin-top:10px;
+    color:#38bdf8;
+}
+
+.stats-card p{
+    margin-top:10px;
+    color:#cbd5e1;
+}
+
+/* BUTTONS */
+
+button,.btn{
+    background:linear-gradient(to right,#2563eb,#7c3aed);
+    border:none;
+    padding:12px 20px;
+    color:white;
+    border-radius:10px;
+    margin-top:15px;
+    cursor:pointer;
+    transition:0.3s;
+}
+
+button:hover,.btn:hover{
+    transform:scale(1.05);
+}
+
+/* CHARTS */
+
+.chart-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(400px,1fr));
+    gap:20px;
+    margin-top:30px;
+}
+
+.chart-container{
+    background:#1e293b;
+    padding:25px;
+    border-radius:20px;
+    box-shadow:0px 0px 10px rgba(0,0,0,0.4);
+}
+
+.chart-container h2{
+    margin-bottom:20px;
+    color:#38bdf8;
+}
+
+/* CHAT BOX */
+
+.chat-box{
+    margin-top:30px;
+    background:#1e293b;
+    padding:20px;
+    border-radius:20px;
+}
+
+#msg{
+    width:70%;
+    padding:12px;
+    border:none;
+    border-radius:10px;
+}
+
+#chat{
+    margin-top:20px;
+    max-height:250px;
+    overflow:auto;
+    background:#0f172a;
+    padding:15px;
+    border-radius:15px;
+}
+
+#chat p{
+    background:#2563eb;
+    padding:10px;
+    border-radius:10px;
+    margin-top:10px;
+}
+
+/* SETTINGS */
+
+.setting-box{
+    margin-top:20px;
+    background:#1e293b;
+    padding:20px;
+    border-radius:20px;
+}
+
+.setting-item{
+    margin-top:15px;
+}
+
+/* SWITCH */
+
+.switch{
+    position:relative;
+    display:inline-block;
+    width:60px;
+    height:30px;
+}
+
+.switch input{
+    opacity:0;
+}
+
+.slider{
+    position:absolute;
+    cursor:pointer;
+    top:0;
+    left:0;
+    right:0;
+    bottom:0;
+    background:#ccc;
+    border-radius:30px;
+}
+
+.slider:before{
+    position:absolute;
+    content:"";
+    height:22px;
+    width:22px;
+    left:4px;
+    bottom:4px;
+    background:white;
+    transition:.4s;
+    border-radius:50%;
+}
+
+input:checked + .slider{
+    background:#2563eb;
+}
+
+input:checked + .slider:before{
+    transform:translateX(28px);
+}
+
+/* SECTION */
+
+.section{
+    display:none;
+}
+
+.active{
+    display:block;
+}
+
+/* ANIMATION */
+
+@keyframes fade{
+
+from{
+    opacity:0;
+    transform:translateY(20px);
+}
+
+to{
+    opacity:1;
+    transform:translateY(0px);
+}
+
+}
+
+.dark-mode{
+    background:#000;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<!-- SIDEBAR -->
+
+<div class="sidebar">
+
+<h2>FlowBoard</h2>
+
+<a href="#" onclick="showSection('dashboard')">
+Dashboard
+</a>
+
+<a href="#" onclick="showSection('projects')">
+Projects
+</a>
+
+<a href="#" onclick="showSection('meetings')">
+Meetings
+</a>
+
+<a href="#" onclick="showSection('chatsection')">
+Chat Box
+</a>
+
+<a href="#" onclick="showSection('settings')">
+Settings
+</a>
+
+<a href="#" onclick="showSection('users')">
+Create Logins
+</a>
+
+</div>
+
+<!-- MAIN -->
+
+<div class="main">
+
+<!-- TOPBAR -->
+
+<div class="topbar">
+
+<h1>Manager Dashboard</h1>
+
+<div class="profile">
+
+<img src="https://i.pravatar.cc/100">
+
+<p>Manager</p>
+
+<button onclick="logout()" class="logout-btn">
+Logout
+</button>
+
+</div>
+
+</div>
+
+<!-- DASHBOARD -->
+
+<div id="dashboard" class="section active">
+
+<!-- STATISTICS CARDS -->
+
+<div class="cards">
+
+<div class="card stats-card">
+
+<h2>Total Projects</h2>
+
+<h1>15</h1>
+
+<p>Active Running Projects</p>
+
+</div>
+
+<div class="card stats-card">
+
+<h2>Completed Tasks</h2>
+
+<h1>120</h1>
+
+<p>Successfully Finished</p>
+
+</div>
+
+<div class="card stats-card">
+
+<h2>Pending Tasks</h2>
+
+<h1>35</h1>
+
+<p>Waiting For Completion</p>
+
+</div>
+
+<div class="card stats-card">
+
+<h2>AI Delay Risk</h2>
+
+<h1>23%</h1>
+
+<p>Predicted Delay Probability</p>
+
+</div>
+
+</div>
+
+<!-- CHARTS -->
+
+<div class="chart-grid">
+
+<div class="chart-container">
+
+<h2>Project Progress</h2>
+
+<canvas id="projectChart"></canvas>
+
+</div>
+
+<div class="chart-container">
+
+<h2>Team Workload</h2>
+
+<canvas id="workChart"></canvas>
+
+</div>
+
+<div class="chart-container">
+
+<h2>Sprint Performance</h2>
+
+<canvas id="sprintChart"></canvas>
+
+</div>
+
+<div class="chart-container">
+
+<h2>Task Analytics</h2>
+
+<canvas id="taskChart"></canvas>
+
+</div>
+
+</div>
+
+</div>
+
+<!-- PROJECTS -->
+
+<div id="projects" class="section">
+
+<div class="card">
+
+<h2>AI Dashboard Project</h2>
+
+<p>Status: In Progress</p>
+
+<p>Assigned: Team Leader</p>
+
+<button onclick="joinMeeting()">
+Join Project Meeting
+</button>
+
+<button>
+Access Source Code
+</button>
+
+</div>
+
+<div class="card">
+
+<h2>FlowBoard UI</h2>
+
+<p>Status: Completed</p>
+
+<p>Assigned: UI Team</p>
+
+<button>
+View Repository
+</button>
+
+</div>
+
+</div>
+
+<!-- MEETINGS -->
+
+<div id="meetings" class="section">
+
+<div class="card">
+
+<h2>Today's Meetings</h2>
+
+<p>Client Meeting - 4 PM</p>
+
+<p>Sprint Review - 6 PM</p>
+
+<button onclick="joinMeeting()">
+Join Video Call
+</button>
+
+</div>
+
+</div>
+
+<!-- CHAT -->
+
+<div id="chatsection" class="section">
+
+<div class="chat-box">
+
+<h2>Live Team Chat</h2>
+
+<input type="text" id="msg">
+
+<button onclick="sendMessage()">
+Send
+</button>
+
+<button onclick="joinMeeting()">
+Video Call
+</button>
+
+<button>
+Audio Call
+</button>
+
+<div id="chat"></div>
+
+</div>
+
+</div>
+
+<!-- SETTINGS -->
+
+<div id="settings" class="section">
+
+<div class="setting-box">
+
+<h2>Dashboard Settings</h2>
+
+<div class="setting-item">
+
+<p>Dark Mode</p>
+
+<label class="switch">
+
+<input type="checkbox" onchange="toggleDarkMode()">
+
+<span class="slider"></span>
+
+</label>
+
+</div>
+
+<div class="setting-item">
+
+<p>Notifications</p>
+
+<label class="switch">
+
+<input type="checkbox" checked>
+
+<span class="slider"></span>
+
+</label>
+
+</div>
+
+<div class="setting-item">
+
+<p>Enable AI Predictions</p>
+
+<label class="switch">
+
+<input type="checkbox" checked>
+
+<span class="slider"></span>
+
+</label>
+
+</div>
+
+</div>
+
+</div>
+
+<!-- USERS -->
+
+<div id="users" class="section">
+
+<div class="card">
+
+<h2>Create Team Leader</h2>
+
+<input type="email" placeholder="Leader Email">
+<br><br>
+
+<input type="password" placeholder="Password">
+
+<button>Create Login</button>
+
+</div>
+
+<div class="card">
+
+<h2>Create Team Member</h2>
+
+<input type="email" placeholder="Member Email">
+<br><br>
+
+<input type="password" placeholder="Password">
+
+<button>Create Login</button>
+
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+/* SECTION SWITCH */
+
+function showSection(id){
+
+let sections = document.querySelectorAll('.section');
+
+sections.forEach(section => {
+
+section.classList.remove('active');
+
+});
+
+document.getElementById(id).classList.add('active');
+
+}
+
+/* CHAT */
+
+const socket = io();
+
+function sendMessage(){
+
+let msg = document.getElementById("msg").value;
+
+socket.send(msg);
+
+document.getElementById("msg").value = "";
+
+}
+
+socket.on('message', function(msg){
+
+document.getElementById("chat").innerHTML +=
+"<p>"+msg+"</p>";
+
+});
+
+/* GOOGLE MEET */
+
+function joinMeeting(){
+
+window.open("https://meet.google.com/wge-aofy-frc");
+
+}
+
+/* DARK MODE */
+
+function toggleDarkMode(){
+
+document.body.classList.toggle("dark-mode");
+
+}
+
+/* LOGOUT */
+
+function logout(){
+
+alert("Logged Out Successfully");
+
+window.location.href="/login";
+
+}
+
+/* CHARTS */
+
+new Chart(document.getElementById('projectChart'),{
+
+type:'line',
+
+data:{
+labels:['Jan','Feb','Mar','Apr','May','Jun'],
+datasets:[{
+label:'Project Completion',
+data:[20,35,50,70,85,100],
+borderColor:'#38bdf8',
+backgroundColor:'rgba(56,189,248,0.2)',
+fill:true,
+tension:0.4
+}]
+}
+
+});
+
+new Chart(document.getElementById('workChart'),{
+
+type:'bar',
+
+data:{
+labels:['Sai','Ravi','Kiran','John','David'],
+datasets:[{
+label:'Employee Workload',
+data:[90,60,70,45,80],
+backgroundColor:[
+'#2563eb',
+'#7c3aed',
+'#38bdf8',
+'#14b8a6',
+'#f59e0b'
+]
+}]
+}
+
+});
+
+new Chart(document.getElementById('sprintChart'),{
+
+type:'doughnut',
+
+data:{
+labels:['Completed','Pending','Delayed'],
+datasets:[{
+data:[60,25,15],
+backgroundColor:[
+'#22c55e',
+'#f59e0b',
+'#ef4444'
+]
+}]
+}
+
+});
+
+new Chart(document.getElementById('taskChart'),{
+
+type:'radar',
+
+data:{
+labels:[
+'Frontend',
+'Backend',
+'Testing',
+'Database',
+'AI',
+'Deployment'
+],
+datasets:[{
+label:'Team Performance',
+data:[85,70,90,65,75,80],
+backgroundColor:'rgba(124,58,237,0.3)',
+borderColor:'#7c3aed'
+}]
+}
+
+});
+
+</script>
+
+</body>
+</html>

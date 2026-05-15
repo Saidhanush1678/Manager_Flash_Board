@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>Login</title>
+
+<link rel="stylesheet"
+href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+<body class="login-body">
+
+<div class="login-container">
+
+<h2>FlowBoard Login</h2>
+
+<form method="POST">
+
+<input type="email"
+name="email"
+placeholder="Enter Email">
+
+<input type="password"
+name="password"
+placeholder="Enter Password">
+
+<select name="role">
+
+<option>Manager</option>
+<option>Client</option>
+<option>Team Leader</option>
+<option>Team Member</option>
+
+</select>
+
+<button type="submit">
+Login
+</button>
+
+</form>
+
+</div>
+
+</body>
+</html>
